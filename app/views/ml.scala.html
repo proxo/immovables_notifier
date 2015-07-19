@@ -1,0 +1,219 @@
+@(message: String, menu:String, calcName: String, ml: actors.FinishML)
+@import tags._
+
+@scaled(v : Double) = {
+    @if(!v.isNaN) {
+        @BigDecimal(v).setScale(4,scala.math.BigDecimal.RoundingMode.HALF_UP)
+    } else {
+        @v
+    }
+
+}
+
+@strip_text(t: String, maxlen: Int = 70) = {
+    @if(t.length > maxlen) {
+        @{t.substring(0,maxlen) + "..."}
+    } else {
+        @t
+    }
+}
+
+@main("Welcome to Immovables Insight", menu) {
+    <div class="row">
+        <div class="col-md-12">
+            <h2>@message</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-condensed table-striped">
+                <thead>@calcName</thead>
+                <tbody>
+                <tr>
+                    <th width="10%">all items</th>
+                    <th width="10%">without dups</th>
+                    <th width="10%">time[ms]</th>
+                    <th width="16%">mean</th>
+                    <th width="16%">sd</th>
+                    <th width="16%">var</th>
+                    <th width="16%">max</th>
+                    <th width="16%">min</th>
+                </tr>
+                <tr>
+                    <th>@ml.baseSize</th>
+                    <th>@ml.items.length</th>
+                    <th>@ml.tookTime.toMillis</th>
+                    <th>@{scaled(ml.calc.mean)}</th>
+                    <th>@{scaled(ml.calc.sd)}</th>
+                    <th>@{scaled(ml.calc.variance)}</th>
+                    <th>@{scaled(ml.calc.max)}</th>
+                    <th>@{scaled(ml.calc.min)}</th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <ul class="nav nav-tabs" id="myTab">
+              <li class="active"><a href="#newitems" data-toggle="tab">New items <span class="badge">@ml.items.size</span></a></li>
+              <li><a href="#details" data-toggle="tab">Details</a></li>
+        </ul>
+    </div>
+
+
+    <div class="tab-content">
+      <div class="tab-pane active" id="newitems">
+          <div class="row">
+              <table class="table">
+              @for(er <- ml.items) {
+                  <tr>
+                      <td class="clickable @("viewed".when(er.estate.viewed))" onclick="openAndMark(this, '@er.estate.guid')">
+                          @if(er.estate.viewed) {
+                            <span>V</span>
+                          }
+                          @strip_text(er.estate.title, 85)
+                          <span class="pull-right">
+                              <i style="margin-right: 20px;">@er.estate.area m<sup>2</sup></i>
+                              &nbsp;
+                              <i>@{(er.estate.price / er.estate.area).setScale(2, scala.math.BigDecimal.RoundingMode.HALF_UP)} zł/m<sup>2</sup></i>
+                              &nbsp;
+                              <strong>@er.estate.price</strong> zł
+                          </span>
+                      </td>
+                  </tr>
+              }
+              </table>
+          </div>
+      </div>
+
+      <div class="tab-pane" id="details">
+          <div class="row">
+                  <table class="table">
+                      @for(er <- ml.items) {
+                      <tr class="success" style="padding-top: 30px;">
+                          <td>
+                              <a href="@er.estate.guid" target="_blank">#</a>@strip_text(er.estate.title)
+                              <span class="pull-right"><i style="margin-right: 20px;">@er.estate.area m<sup>2</sup></i> <i>@er.estate.pubDate</i> &nbsp;<strong>@er.estate.price</strong> zł</span>
+                      </tr>
+                      <tr>
+                          <td>
+                          @if(!er.equals.isEmpty) {
+                          <div class="panel panel-default">
+                            <div class="panel-heading">Duplicate</div>
+                            <div class="panel-body">
+                                <ul>
+                                @for((sim, duplicate, trace) <- er.equals) {
+                                    <li>@{scaled(sim)} -
+                                      <a href="@duplicate.guid"  target="_blank">#</a> @strip_text(duplicate.title) @duplicate.pubDate
+                                      @modal(title = "Calculation details", id = duplicate.guid.##.toString) {
+                                          <p>@er.estate.guid</p>
+                                          <p>
+                                              <h3>VS.</h3>
+                                          </p>
+                                          <p>@duplicate.guid</p>
+                                          <table class="table">
+                                              <tr>
+                                                  <th>name</th>
+                                                  <th>a</th>
+                                                  <th>b</th>
+                                                  <th>sa</th>
+                                                  <th>sb</th>
+                                                  <th>d</th>
+                                                  <th>alpha</th>
+                                              </tr>
+                                              @for(ct <- trace){
+                                                  <tr>
+                                                      <td>@{ct.name}</td>
+                                                      <td>@{scaled(ct.v1)}</td>
+                                                      <td>@{scaled(ct.v2)}</td>
+                                                      <td>@{scaled(ct.sv1)}</td>
+                                                      <td>@{scaled(ct.sv2)}</td>
+                                                      <td>@{scaled(ct.dist)}</td>
+                                                      <td>@{scaled(ct.alpha)}</td>
+                                                  </tr>
+                                              }
+                                          </table>
+                                      }
+                                    <span class="pull-right"><strong>@duplicate.price</strong></span>
+                                    </li>
+                                }
+
+                                </ul>
+                            </div>
+                          </div>
+                          }
+                          </td>
+                      </tr>
+                      <tr>
+                          <td>
+                              @if(!er.similar.isEmpty) {
+                                  <div class="panel panel-default">
+                                      <div class="panel-heading">Simillar</div>
+                                      <div class="panel-body">
+                                          <ul>
+                                          @for((sim, duplicate, trace) <- er.similar) {
+                                              <li>@{
+                                                  scaled(sim)
+                                              } -
+                                              <a href="@duplicate.guid" target="_blank">#</a> @strip_text(duplicate.title) @duplicate.pubDate
+                                                  @modal(title = "Calculation details", id = duplicate.guid.##.toString) {
+                                                      <p>@er.estate.guid</p>
+                                                      <p>
+                                                  <h3>VS.</h3>
+                                                      </p>
+                                                      <p>@duplicate.guid</p>
+                                                      <table class="table">
+                                                          <tr>
+                                                              <th>name</th>
+                                                              <th>a</th>
+                                                              <th>b</th>
+                                                              <th>sa</th>
+                                                              <th>sb</th>
+                                                              <th>d</th>
+                                                              <th>alpha</th>
+                                                          </tr>
+                                                          @for(ct <- trace) {
+                                                              <tr>
+                                                                  <td>@{ct.name}</td>
+                                                                  <td>@{
+                                                                      scaled(ct.v1)
+                                                                  }</td>
+                                                                  <td>@{
+                                                                      scaled(ct.v2)
+                                                                  }</td>
+                                                                  <td>@{
+                                                                      scaled(ct.sv1)
+                                                                  }</td>
+                                                                  <td>@{
+                                                                      scaled(ct.sv2)
+                                                                  }</td>
+                                                                  <td>@{
+                                                                      scaled(ct.dist)
+                                                                  }</td>
+                                                                  <td>@{
+                                                                      scaled(ct.alpha)
+                                                                  }</td>
+                                                              </tr>
+                                                          }
+                                                      </table>
+                                                  }
+                                              <span class="pull-right"><strong>@duplicate.price</strong></span>
+                                              </li>
+                                          }
+                                          </ul>
+                                      </div>
+                                  </div>
+                              }
+                          </td>
+                      </tr>
+                      }
+                  </table>
+              </div>
+      </div>
+    </div>
+
+
+
+}

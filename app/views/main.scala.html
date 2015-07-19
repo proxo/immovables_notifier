@@ -1,0 +1,52 @@
+@(title: String = "Welcome to Immovables Insight", selected : String = "home")(content: Html)
+@import tags._
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Piotr Maśko">
+    <title>@title</title>
+    <link rel='stylesheet' href='@routes.WebJarAssets.at(WebJarAssets.locate("css/bootstrap.min.css"))'>
+      <link rel='stylesheet' href='assets/stylesheets/main.css'>
+    <style>
+    body {
+      padding-top: 60px;
+    }
+    </style>
+
+    <script type="text/javascript">
+        function openAndMark(tdElem, guid) {
+            window.open(guid, "_blank");
+            $.ajax({
+                url: "@{routes.Application.markAsViewed}" ,
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify({guid: guid}),
+                dataType: "json"})
+            .done(function() {  $(tdElem).addClass("viewed"); })
+            .fail(function() { alert( "error" ); });
+    }
+    </script>
+  </head>
+
+  <body>
+    @if(selected != "none") {
+        @header(selected)
+    }
+
+    <div class="container">
+    @content
+    </div>
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
+    <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.js"))'></script>
+  </body>
+</html>
+

@@ -1,0 +1,26 @@
+@(message: String, menu : String, sets: Option[Vector[ParseSet]])
+
+@main("Welcome to Immovables Insight", menu) {
+    <div class="row">
+        <div class="col-md-12">
+            <div class="jumbotron"><h1 class="text-center">@message</h1></div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+        @sets match {
+            case None => {
+                <span class="label label-warning">Warning</span> No sets found
+            }
+            case Some(data) => {
+                <div class="list-group">
+                  @for(item <- data) {
+                      <a href="@{routes.Application.startFetch(item.name)}" class="list-group-item">
+                          @item.name<br/>@item.desc
+                      </a>
+                  }
+                </div>
+            }
+        }
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+}

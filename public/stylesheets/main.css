@@ -1,0 +1,19 @@
+
+li.parseset {
+    cursor: pointer;
+}
+
+li.parseset:hover {
+    border: 3px solid #000000;
+}
+td.viewed {
+    background-color: #f9f9f9;
+}
+
+td.viewed {
+    background-color: #eee;
+}
+
+td.clickable {
+    cursor: pointer;
+}

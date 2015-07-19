@@ -1,0 +1,27 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET         /                                    controllers.LoginController.login
+GET         /home                                controllers.Application.index
+GET         /startFetch/:setName                 controllers.Application.startFetch(setName : String)
+GET         /showResults/:days                   controllers.Application.showResults(days : Int)
+GET         /startClustering                     controllers.Application.setupClustering()
+POST        /startClustering                     controllers.Application.startClustering()
+GET         /parseLedger                         controllers.Application.parseLedger()
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                        controllers.Assets.at(path="/public", file)
+GET         /webjars/*file                       controllers.WebJarAssets.at(file)
+GET         /fetchFeed                           controllers.Application.fetchFeed
+
+GET         /scheduleFetch/:setName              controllers.Application.scheduleFetch(setName, freq : Int = 120)
+GET         /scheduleFetch/:setName/:freq        controllers.Application.scheduleFetch(setName, freq : Int)
+GET         /cancelFetch                         controllers.Application.cancelFetch
+# JSON mark as viewed
+POST        /markAsViewed                        controllers.Application.markAsViewed
+
+# Authentication
+GET         /login                               controllers.LoginController.login
+POST        /login                               controllers.LoginController.authenticate
+GET         /logout                              controllers.LoginController.logout

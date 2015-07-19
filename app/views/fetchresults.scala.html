@@ -1,0 +1,87 @@
+@(message: String,menu:String, immovables: Seq[pl.prxsoft.registry.land.ExtLandProperty], days: Int)
+
+    @strip_text(t: String, maxlen: Int = 60) = {
+        @if(t.length > maxlen) {
+            @{t.substring(0,maxlen) + "..."}
+        } else {
+            @t
+        }
+    }
+
+@main("Welcome to Immovables Insight", menu) {
+    <div class="row">
+        <div class="col-md-10">
+            <h2>@message</h2>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+
+    <script type="text/javascript">
+        function showAll(item) {
+            window.location.href = "/showResults/"  + item.value;
+            return true;
+        }
+    </script>
+
+    <script type="text/javascript">
+        function showFetch(item) {
+            var days = $("#days" ).val();
+            var ok = /\d+/.test(days);
+
+            if (ok) {
+                window.location.href ='/showResults/' + $('#days').val();
+            }
+            return true;
+        }
+    </script>
+    <div class="row">
+        <div class="col-md-8">
+            <form class="form-inline" role="form">
+              <div class="form-group">
+                <label class="sr-only" for="days">Days</label>
+                <input type="text" class="form-control" id="days" placeholder="Days" value="@days">
+              </div>
+              <div class="form-group">
+                <button type="button" class="btn btn-default" onclick="showFetch(this)">go</button>
+              </div>
+
+        </div>
+        <div class="col-md-4">&nbsp;</div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+        @if(!immovables.isEmpty) {
+            <table class="table table-condensed table-striped">
+                <tr>
+                    <th>posted</th>
+                    <th>site</th>
+                    <th>title</th>
+                    <th>area</th>
+                    <th>price</th>
+                    <th>rooms</th>
+                    <th>stock</th>
+                    <th>total stocks</th>
+                    <th>price/area</th>
+                </tr>
+                @for(i <- immovables) {
+                    <tr>
+                        <td><a href="@i.guid" target="_blank">#</a> @i.pubDate</td>
+                        <td>@i.site</td>
+                        <td>@strip_text(i.title)</td>
+                        <td>@i.area</td>
+                        <td>@i.price</td>
+                        <td>@i.rooms</td>
+                        <td>@i.stock</td>
+                        <td>@i.totalStocks</td>
+                        <td>@{
+                            (i.price / i.area).setScale(2, scala.math.BigDecimal.RoundingMode.HALF_UP)
+                        }</td>
+                    </tr>
+                }
+            </table>
+        }
+        </div>
+    </div>
+
+}

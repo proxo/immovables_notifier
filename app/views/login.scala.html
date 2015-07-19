@@ -1,0 +1,49 @@
+@(form: Form[(String, String)])(implicit flash: Flash)
+@main("Welcome to Immovables Insight", "none") {
+    <form class="form-horizontal" role="form">
+
+    </form>
+
+    <div class="row">
+        <div class="col-md-offset-2 col-md-6">
+        @helper.form(routes.LoginController.authenticate, 'class -> "form-horizontal") {
+            <h1>Log in to Immovables Insight</h1>
+            @form.globalError.map { error =>
+                <p class="error">
+                    @error.message
+                </p>
+            }
+
+            @flash.get("success").map { message =>
+                <p class="success">
+                    @message
+                </p>
+            }
+
+            <div class="form-group">
+                <label for="inputEmail1" class="col-lg-2 control-label">Email</label>
+                <div class="col-lg-10">
+                    <input type="email" name="email" class="form-control" id="email" placeholder="Email" value="@form("email").value">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="inputPassword1" class="col-lg-2 control-label">Password</label>
+                <div class="col-lg-10">
+                    <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-lg-offset-2 col-lg-10">
+                    <button type="submit" class="btn btn-default">Sign in</button>
+                </div>
+            </div>
+
+        }
+        </div>
+
+        <div class="col-md-4">
+        </div>
+    </div>
+}

@@ -1,0 +1,37 @@
+@(message: String, menu:String, ledger: Seq[ParseLedger])
+
+@main("Welcome to Immovables Insight", menu) {
+    <div class="row">
+        <div class="col-md-10">
+            <h2>@message</h2>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+        @if(!ledger.isEmpty) {
+            <table class="table">
+                <tr>
+                    <th>Started</th>
+                    <th>Ended</th>
+                    <th>New items</th>
+                    <th>Old items</th>
+                    <th>Failed</th>
+                </tr>
+
+                @for(i <- ledger) {
+                    <tr>
+                        <td>@i.createdAt</td>
+                        <td>@i.endedAt</td>
+                        <td>@i.newItems</td>
+                        <td>@i.oldItems</td>
+                        <td>@i.failedItems</td>
+                    </tr>
+                }
+            </table>
+        }
+        </div>
+    </div>
+
+}

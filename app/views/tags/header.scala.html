@@ -1,0 +1,41 @@
+@(selected: String = "home")
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Immovables Insight</a>
+        </div>
+
+            @navitem(id: String)(link: Html) = {
+            @if(id == selected) {
+                <li class="active"><a href="@link">@id</a></li>
+            } else {
+                <li><a href="@link">@id</a></li>
+            }
+            }
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    @navitem("Home") { @routes.Application.index() }
+                    @navitem("Results") {
+                        @{
+                            routes.Application.showResults(2)
+                        }
+                    }
+                    @navitem("ML") {
+                        @{
+                            routes.Application.startClustering()
+                        }
+                    }
+                    @navitem("Ledger") {
+                        @{routes.Application.parseLedger()}
+                    }
+    </ul>
+    </div><!--/.nav-collapse -->
+    </div>
+</div>

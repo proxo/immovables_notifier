@@ -1,0 +1,59 @@
+@(message: String, menu : String)
+
+@main("Welcome to Immovables Insight", menu) {
+    <div class="row">
+        <div class="col-md-offset-2 col-md-10">
+            <h2>@message</h2>
+            <div class="row" id="fetchfeed">
+            </div>
+        </div>
+
+        @if(menu=="Fetch") {
+            <script type="text/javascript">
+            var source;
+            if (!!window.EventSource) {
+              source = new EventSource('/fetchFeed');
+              source.addEventListener('message', function(e) {
+                            var data = JSON.parse(e.data);
+                            console.log(data)
+                            if (data && data !== undefined) {
+                                if (data.status) {
+                                    var txt = "";
+                                    if (data.status == "new") {
+                                        txt = '<span class="label label-success">new</span>&nbsp;';
+                                    } else if  (data.status =="old") {
+                                        txt = '<span class="label label-warning">old</span>&nbsp;';
+                                    } else {
+                                        txt = '<span class="label label-danger">failed</span>&nbsp;';
+                                    }
+                                    if (data.estate !== undefined) {
+                                        $('<p>' + txt + data.estate.guid + '</p>&nbsp;' ).appendTo("#fetchfeed");
+                                    } else if (data.site !== undefined) {
+                                        $('<p>' + txt + data.site + '</p>&nbsp;' ).appendTo("#fetchfeed");
+                                    }
+
+                                }
+                            }
+
+                        }, false);
+
+                        source.addEventListener('open', function(e) {
+                          // Connection was opened.
+                            console.log("SSE is opened");
+                        }, false);
+
+                        source.addEventListener('error', function(e) {
+                          if (e.readyState == EventSource.CLOSED) {
+                            // Connection was closed.
+                            console.log("SEE is closed");
+                          }
+                        }, false);
+            } else {
+              // Result to xhr polling :(
+               alert('Event streaming is not supported');
+            }
+
+            </script>
+        }
+    </div>
+}
